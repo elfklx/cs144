@@ -33,10 +33,11 @@ int main() {
             vector<tuple<size_t, size_t>> seq_size;
             size_t offset = 0;
             for (unsigned i = 0; i < NSEGS; ++i) {
-                const size_t size = 1 + (rd() % (MAX_SEG_LEN - 1));
+                const size_t size = 1 + (rd() % (MAX_SEG_LEN - 1));  // 随机大小的segment。
                 seq_size.emplace_back(offset, size);
                 offset += size;
             }
+            // 洗牌，传递一个随机数生成器。
             shuffle(seq_size.begin(), seq_size.end(), rd);
 
             string d(offset, 0);

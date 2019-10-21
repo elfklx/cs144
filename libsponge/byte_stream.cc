@@ -21,7 +21,7 @@ ByteStream::ByteStream(const size_t capacity)
     : _stream(), _size(0), _capacity(capacity), _eof(false), _input_ended(false), _nWritten(0), _nRead(0) {}
 
 size_t ByteStream::write(const string &data) {
-    long unsigned n, idle = _capacity - _size;
+    size_t n, idle = _capacity - _size;
     for (n = 0; n < idle && n < data.size(); n++) {
         _stream.push_back(data[n]);
     }
@@ -37,11 +37,7 @@ string ByteStream::peek_output(const size_t len) const {
         // set_error(); // const指针不能调用非const方法。
         throw runtime_error("len > _size");
     }
-    string s;
-    s.resize(len);
-    auto begin = _stream.begin();
-    copy(begin, begin + len, s.begin());
-    return s;
+    return string(_stream.begin(), _stream.begin()+len);
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
@@ -50,7 +46,7 @@ void ByteStream::pop_output(const size_t len) {
         set_error();
         throw runtime_error("len > _size");
     }
-    for (long unsigned i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
         _stream.pop_front();
     _size -= len;
     _nRead += len;

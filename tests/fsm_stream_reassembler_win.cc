@@ -33,9 +33,9 @@ int main() {
             vector<tuple<size_t, size_t>> seq_size;
             size_t offset = 0;
             for (unsigned i = 0; i < NSEGS; ++i) {
-                const size_t size = 1 + (rd() % (MAX_SEG_LEN - 1));
+                const size_t size = 1 + (rd() % (MAX_SEG_LEN - 1)); // size在[1, MAX_SEG_LEN)范围内。
                 const size_t offs = min(offset, 1 + (static_cast<size_t>(rd()) % 1023));
-                seq_size.emplace_back(offset - offs, size + offs);
+                seq_size.emplace_back(offset - offs, size + offs); // 这里加减offs制造一些重叠。
                 offset += size;
             }
             shuffle(seq_size.begin(), seq_size.end(), rd);

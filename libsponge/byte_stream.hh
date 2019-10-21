@@ -16,12 +16,14 @@
 class ByteStream {
   private:
     // Your code here -- add private members as necessary.
+    // XXX 之所以用char，是因为char类型占一个字节，writer()和read()接收和返回string也是因为string底层是char数组。
+    // 所以我们可以用char序列或string来表示字节流/字节序列。
     std::deque<char> _stream;
     size_t _size;
     size_t _capacity;
 
-    bool _eof;
-    bool _input_ended;
+    bool _eof; // 标记读者是否已把byte stream读完。
+    bool _input_ended; // 标记写者是否已经结束输入。
     size_t _nWritten;
     size_t _nRead;
 

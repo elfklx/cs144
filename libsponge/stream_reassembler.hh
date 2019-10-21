@@ -24,7 +24,7 @@ class StreamReassembler {
     ByteStream _output;  //!< The reassembled in-order byte stream
     size_t _capacity;    //!< The maximum number of bytes
 
-    size_t _toReassemble;
+    size_t _firstUnassembled;
     size_t _nUnassembled;
     std::map<size_t, std::pair<std::string, bool>> _book;  // 登记已到达但还不能放入byte stream的segment。
 

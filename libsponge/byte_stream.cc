@@ -33,23 +33,16 @@ size_t ByteStream::write(const string &data) {
 //! \param[in] len bytes will be copied from the output side of the buffer
 string ByteStream::peek_output(const size_t len) const {
     // 只是peek，所以不改变_size和_nRead。
-    if (len > _size) {
-        // set_error(); // const指针不能调用非const方法。
-        throw runtime_error("len > _size");
-    }
-    return string(_stream.begin(), _stream.begin()+len);
+    return string(_stream.begin(), _stream.begin()+min(len, _size));
 }
 
 //! \param[in] len bytes will be removed from the output side of the buffer
 void ByteStream::pop_output(const size_t len) {
-    if (len > _size) {
-        set_error();
-        throw runtime_error("len > _size");
-    }
-    for (size_t i = 0; i < len; i++)
+    size_t l = min(len, _size);
+    for (size_t i = 0; i < l; i++)
         _stream.pop_front();
-    _size -= len;
-    _nRead += len;
+    _size -= l;
+    _nRead += l;
     if (buffer_empty() && input_ended())
         _eof = true;
 }

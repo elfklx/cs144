@@ -8,6 +8,13 @@
 
 #include <functional>
 #include <queue>
+#include <set>
+
+struct cmp {
+    bool operator()(const TCPSegment& a, const TCPSegment& b) const {
+        return a.header().seqno < b.header().seqno;   // 序号小的排前面，先处理。
+    }
+};
 
 //! \brief The "sender" part of a TCP implementation.
 
@@ -26,11 +33,28 @@ class TCPSender {
     //! retransmission timer for the connection
     unsigned int _initial_retransmission_timeout;
 
+    unsigned int _retransmissionTimeout;
+    unsigned int _retransmissionTimer{0};
+
     //! outgoing stream of bytes that have not yet been sent
     ByteStream _stream;
 
     //! the (absolute) sequence number for the next byte to be sent
     uint64_t _next_seqno{0};
+
+    unsigned int _nConsecutiveretransmissions{0};
+
+    std::set<TCPSegment, cmp> _outstandingSegments;
+
+    size_t _nBytesInFlight{0};
+
+    bool _finSent{false};
+
+    // • What should my TCPSender assume as the receiver’s window size before I’ve gotten an ACK from the receiver?
+    // One byte
+    // 这样sender才能发送syn，或者fin，因为它们占一个序号。
+    uint16_t _notifyWinSize{1};
+    uint64_t _notifyWinStart{0};
 
   public:
     //! Initialize a TCPSender

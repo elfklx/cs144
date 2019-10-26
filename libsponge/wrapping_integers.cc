@@ -42,12 +42,8 @@ uint64_t unwrap(WrappingInt32 n, WrappingInt32 isn, uint64_t checkpoint) {
     // 注意，seqno是从isn开始的，而不是从0开始。
     // 所以转换的第一步是先将从isn开始**映射到**从0开始，然后绕圈到大于等于checkpoint，然后检查是否最接近checkpoint。
     // 一次消息发送中，消息中的每一个字节都有对应的sqeno（不唯一），也有对应的absolute seqno（唯一）。
-    // 因为会绕圈，所以n可能会比isn小。
-    uint64_t absSeqno = n.raw_value();
-    if (n < isn)
-        absSeqno = absSeqno + UINT32_LEN - isn.raw_value();
-    else
-        absSeqno -= isn.raw_value();
+    // 因为会绕圈，所以n可能会比isn小。但无符号数相减自带绕圈，可以正确地得出两数的差值。
+    uint64_t absSeqno = n.raw_value()-isn.raw_value();
     while (absSeqno < checkpoint)
         absSeqno += UINT32_LEN;
     if (absSeqno >= UINT32_LEN) {

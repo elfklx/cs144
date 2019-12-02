@@ -1,3 +1,12 @@
+- [x] Lab 0
+
+- [x] Lab 1
+
+- [x] Lab 2
+
+- [x] Lab 3
+
+
 For build prereqs, see [the CS144 VM setup instructions](https://web.stanford.edu/class/cs144/vm_howto).
 
 ## Sponge quickstart

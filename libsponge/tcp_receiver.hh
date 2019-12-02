@@ -27,15 +27,13 @@ class TCPReceiver {
     // 由于WrappingInt32并没有一个特殊值可以表示WrappingInt32无效，所以需要额外设置一个flag。
     bool _synReceived;
 
-    std::map<WrappingInt32, size_t> _pendingSeqnos;
-
   public:
     //! \brief Construct a TCP receiver
     //!
     //! \param capacity the maximum number of bytes that the receiver will
     //!                 store in its buffers at any give time.
     TCPReceiver(const size_t capacity)
-        : _reassembler(capacity), _capacity(capacity), _ackno(0), _isn(0), _synReceived(false), _pendingSeqnos() {}
+        : _reassembler(capacity), _capacity(capacity), _ackno(0), _isn(0), _synReceived(false) {}
 
     //! \name Accessors to provide feedback to the remote TCPSender
     //!@{

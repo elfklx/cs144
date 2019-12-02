@@ -39,13 +39,16 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
     }
     size_t n = dataEnd - dataStart;
     size_t pEnd, pStart;
-    vector<size_t> toDelete;
-    for (const auto& p: _book) {
-        pStart = p.first;
-        pEnd = p.first+p.second.first.size(); // 右开。
+    // XXX 如果用注释掉的迭代方式，那么在迭代时，调用了erase()，就可能出错，有一个测试用例是这样的。
+    // for (const auto& p: _book) {
+    for (auto it=_book.begin(); it!=_book.end(); ) {
+        pStart = it->first;
+        pEnd = it->first+it->second.first.size(); // 右开。
         // 先是两种不相交的情况。
-        if (pEnd <= dataStart)
+        if (pEnd <= dataStart) {
+            it++;
             continue;
+        }
         if (dataEnd <= pStart)
             break;
         // 以下是四种相交的情况。
@@ -53,30 +56,25 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             // n = 0;
             return;
         } else if (dataStart<=pStart && pEnd<=dataEnd) {
-            _nUnassembled -= p.second.first.size();
-            // XXX 不要在遍历容器/map时对容器做删除或插入操作，会使得迭代器失效。
-            // 虽然在数据量小的时候测试时是正常的，但大数据量时就会出错。
-            // lab1最后一个测试过不了就是因为这个。
-            // _book.erase(p.first);
-            toDelete.push_back(p.first);
+            _nUnassembled -= it->second.first.size();
+            it = _book.erase(it);
         } else if (pStart<dataStart && dataStart<pEnd) {
-            n -= (pEnd-dataStart); // 注意不要调换这两句的顺序，因为dataStart会再其中一条语句更新，而两条语句都依赖于旧的dataStart。
-            assert(n>0); // 检查无符号数减法不溢出。
+            n -= (pEnd-dataStart);
             dataStart = pEnd;
+            it++;
         } else if (pStart<dataEnd && dataEnd<pEnd) {
             n -= (dataEnd-pStart);
-            assert(n>0);
             dataEnd = pStart;
+            it++;
         }
     }
-    for (size_t i: toDelete) {
-        _book.erase(i);
-    }
+    /*
     for (const auto& p: _book) {
         pStart = p.first;
         pEnd = p.first+p.second.first.size();
         assert(pEnd<=dataStart || pStart>=dataEnd); // 检查前面的循环是否保证了两两不相交。
     }
+    */
     auto dataRelativeStart = data.begin() + (dataStart - index);
     if (dataStart == _firstUnassembled) {
         size_t n1;
@@ -88,22 +86,22 @@ void StreamReassembler::push_substring(const string &data, const size_t index, c
             _output.end_input();
             return;
         }
-        for (const auto& p: _book) {
-            assert(p.first >= _firstUnassembled);
-            if (p.first == _firstUnassembled) {
-                n1 = _output.write(p.second.first);
-                assert(n1 == p.second.first.size());
-                _firstUnassembled += p.second.first.size();
-                _nUnassembled -= p.second.first.size();
-                if (p.second.second)
+        for (auto it=_book.begin(); it!=_book.end(); ) {
+            assert(it->first >= _firstUnassembled);
+            if (it->first == _firstUnassembled) {
+                n1 = _output.write(it->second.first);
+                assert(n1 == it->second.first.size());
+                _firstUnassembled += it->second.first.size();
+                _nUnassembled -= it->second.first.size();
+                if (it->second.second)
                     _output.end_input();
-                _book.erase(p.first);
+                it = _book.erase(it);
             } else {
                 break;
             }
         }
     } else {
-        _book[dataStart] = pair<string, int>(string(dataRelativeStart, dataRelativeStart+n), dataEnd==index+data.size()&&eof);
+        _book[dataStart] = pair<string, int>(string(dataRelativeStart, dataRelativeStart+n), dataEnd==index+data.size()&&eof); // 如果该segment的数据没有完全接收完，就忽略eof。
         _nUnassembled += n;
     }
 }

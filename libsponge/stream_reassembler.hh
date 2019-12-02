@@ -42,7 +42,7 @@ class StreamReassembler {
     //! will be disregarded.
     //!
     //! \param data the string being added
-    //! \param index the index of the first byte in `data`（这个英文应该理解为“`data`中第一个字节（在整个byte stream）的下标”而不是"第一个字节在`data`中的下标"）
+    //! \param index the index of (the first byte in `data`)
     //! \param eof whether or not this segment ends with the end of the stream
     void push_substring(const std::string &data, const uint64_t index, const bool eof);
 

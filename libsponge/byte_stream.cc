@@ -43,7 +43,7 @@ void ByteStream::pop_output(const size_t len) {
         _stream.pop_front();
     _size -= l;
     _nRead += l;
-    if (buffer_empty() && input_ended())
+    if (buffer_empty() && input_ended()) // XXX 如果缓冲区读完了且写者不会再写入任何数据，则该字节流肯定就结束了。
         _eof = true;
 }
 
